@@ -87,16 +87,7 @@ module SneakySave
       if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR < 2
 	      send :arel_attributes_with_values_for_create, attribute_names
       else
-        values = send(:attributes_with_values_for_create, attribute_names)
-        model = self.class
-        substitutes_and_binds = model.send(:_substitute_values, values)
-
-        insert_manager = model.arel_table.create_insert
-        insert_manager.insert substitutes_and_binds
-
-        model.connection.unprepared_statement do
-          model.connection.to_sql(insert_manager)
-        end
+        send(:attributes_with_values_for_create, attribute_names)
       end
     else
       send :arel_attributes_values
