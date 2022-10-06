@@ -85,7 +85,7 @@ module SneakySave
   def sneaky_attributes_values
     if sneaky_new_rails?
       if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR < 2
-	      send :arel_attributes_with_values_for_create, attribute_names
+        send :arel_attributes_with_values_for_create, attribute_names
       else
         send(:attributes_with_values_for_create, attribute_names)
       end
