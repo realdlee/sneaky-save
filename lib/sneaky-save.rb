@@ -51,13 +51,22 @@ module SneakySave
     end
 
     if attributes_values.empty?
-      new_id = self.class.unscoped.insert(sneaky_connection.empty_insert_statement_value)
+      new_id = sneaky_insert(self.class, sneaky_connection.empty_insert_statement_value)
     else
-      new_id = self.class.unscoped.insert(attributes_values)
+      new_id = sneaky_insert(self.class, attributes_values)
     end
 
     @new_record = false
     !!(self.id ||= new_id)
+  end
+
+  def sneaky_insert(model, substitutes_and_binds)
+     insert_manager = model.arel_table.create_insert
+     insert_manager.insert substitutes_and_binds
+
+     model.connection.unprepared_statement do
+       model.connection.to_sql(insert_manager)
+    end
   end
 
   # Performs update query without running callbacks
@@ -87,7 +96,9 @@ module SneakySave
       if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR < 2
         send :arel_attributes_with_values_for_create, attribute_names
       else
-        send(:attributes_with_values_for_create, attribute_names)
+        values = send(:attributes_with_values_for_create, attribute_names)
+        model = self.class
+        substitutes_and_binds = model.send(:_substitute_values, values).to_h
       end
     else
       send :arel_attributes_values
@@ -112,5 +123,6 @@ module SneakySave
     ActiveRecord::VERSION::STRING.to_i > 3
   end
 end
+
 
 ActiveRecord::Base.send :include, SneakySave
