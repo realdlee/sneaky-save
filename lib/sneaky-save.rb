@@ -61,12 +61,10 @@ module SneakySave
   end
 
   def sneaky_insert(model, substitutes_and_binds)
-     insert_manager = model.arel_table.create_insert
-     insert_manager.insert substitutes_and_binds
-
-     model.connection.unprepared_statement do
-       model.connection.to_sql(insert_manager)
-    end
+    insert_manager = model.arel_table.create_insert
+    insert_manager.insert substitutes_and_binds
+    sql = model.connection.to_sql(insert_manager)
+    ActiveRecord::Base.connection().insert(sql)
   end
 
   # Performs update query without running callbacks
