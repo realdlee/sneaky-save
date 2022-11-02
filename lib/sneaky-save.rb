@@ -94,7 +94,7 @@ module SneakySave
       if ActiveRecord::VERSION::MAJOR == 5 && ActiveRecord::VERSION::MINOR < 2
         send :arel_attributes_with_values_for_create, attribute_names
       else
-        values = send(:attributes_with_values_for_create, attribute_names)
+        values = send(:attributes_with_values, attribute_names)
         model = self.class
         substitutes_and_binds = model.send(:_substitute_values, values).to_h
       end
